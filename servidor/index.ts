@@ -2,62 +2,79 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const httpServer = createServer(app as any);
-const io = new Server(httpServer, {
-  cors: { origin: "*" }
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
+
+// --- Conexión MySQL ---
+const db = await mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: Number(process.env.DB_PORT)
 });
 
-// Simulación de productos
-const productos = [
-  { id: 1, nombre: "Ensalada César", precio: 5 },
-  { id: 2, nombre: "Pasta Boloñesa", precio: 8 },
-  { id: 3, nombre: "Pizza Margarita", precio: 9 },
-  { id: 4, nombre: "Tiramisú", precio: 4 }
-];
+console.log("✅ Conectado a la base de datos MySQL (XAMPP)");
 
-// Simulación de pedidos
+// --- Endpoint para obtener productos ---
+app.get("/productos", async (req, res) => {
+  const [productos] = await db.query(`
+    SELECT p.id, p.nombre, p.descripcion, p.precio, p.disponible
+    FROM productos p
+    WHERE p.disponible = true
+  `);
+
+  const [alergenos] = await db.query(`
+    SELECT pa.producto_id, a.nombre, a.icono
+    FROM producto_alergeno pa
+    JOIN alergenos a ON a.id = pa.alergeno_id
+  `);
+
+  const productosConAlergenos = (productos as any[]).map((p) => ({
+    ...p,
+    alergenos: (alergenos as any[])
+      .filter((a) => a.producto_id === p.id)
+      .map((a) => ({ nombre: a.nombre, icono: a.icono }))
+  }));
+
+  res.json(productosConAlergenos);
+});
+
+// --- Comunicación por Socket.io ---
 const pedidos: Record<string, any> = {};
 
-// Endpoint para obtener productos
-app.get("/productos", (req, res) => {
-  res.json(productos);
-});
-
-// Cuando un cliente se conecta por socket
 io.on("connection", (socket) => {
   console.log("Cliente conectado:", socket.id);
 
-  // Cliente envía un pedido
   socket.on("nuevoPedido", (pedido) => {
-    console.log("Pedido recibido:", pedido);
-
     pedidos[socket.id] = { ...pedido, estado: "recibido" };
     socket.emit("estadoPedido", pedidos[socket.id]);
+    io.emit("listaPedidos", Object.values(pedidos));
+  });
 
-    // Simulamos que el cocinero cambia de estado después de unos segundos
-    setTimeout(() => {
-      pedidos[socket.id].estado = "preparando";
-      socket.emit("estadoPedido", pedidos[socket.id]);
-    }, 3000);
-
-    setTimeout(() => {
-      pedidos[socket.id].estado = "listo";
-      socket.emit("estadoPedido", pedidos[socket.id]);
-    }, 6000);
+  socket.on("actualizarEstado", ({ id, nuevoEstado }) => {
+    if (pedidos[id]) {
+      pedidos[id].estado = nuevoEstado;
+      io.to(id).emit("estadoPedido", pedidos[id]);
+      io.emit("listaPedidos", Object.values(pedidos));
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log("Cliente desconectado:", socket.id);
     delete pedidos[socket.id];
+    io.emit("listaPedidos", Object.values(pedidos));
   });
 });
 
-
-httpServer.listen(3000, () => {
-  console.log("Servidor escuchando en http://localhost:3000");
+httpServer.listen(process.env.PORT, () => {
+  console.log(` Servidor corriendo en http://localhost:${process.env.PORT}`);
 });
