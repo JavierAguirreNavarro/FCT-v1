@@ -1,0 +1,133 @@
+---
+import Header from "../components/Header.astro";
+import "../assets/css/style.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tori & Roll</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <Header />
+
+    <div class="form-product">
+      <h2>Añadir nuevo plato</h2>
+
+      <!-- Dropzone para imagen -->
+      <div class="dropzone" id="dropzone">
+        <i class="fa-solid fa-image"></i>
+        <p>Arrastra una imagen aquí o haz clic</p>
+        <input type="file" id="fileInput" hidden accept="image/*" />
+      </div>
+
+      <div class="form-group">
+        <label>Título del plato</label>
+        <input type="text" placeholder="Ej. Nigiri de salmón" />
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de plato</label>
+        <select class="tipo-plato">
+          <option value="">Seleccionar tipo...</option>
+          <option value="nigiri">Nigiri</option>
+          <option value="sashimi">Sashimi</option>
+          <option value="uramaki">Uramaki</option>
+          <option value="ramen">Ramen</option>
+          <option value="gyoza">Gyoza</option>
+          <option value="karage">Karage</option>
+          <option value="postre">Postre</option>
+          <option value="bebida">Bebida</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea placeholder="Describe brevemente el plato..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Alergenos</label>
+        <div class="alerg-container">
+          <label><input type="checkbox" value="gluten" /> Gluten</label>
+          <label><input type="checkbox" value="soja" /> Soja</label>
+          <label><input type="checkbox" value="pescado" /> Pescado</label>
+          <label><input type="checkbox" value="huevo" /> Huevo</label>
+          <label><input type="checkbox" value="lactosa" /> Lactosa</label>
+          <label><input type="checkbox" value="mariscos" /> Mariscos</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Precio (€)</label>
+        <input type="number" value="0" step="0.01" />
+      </div>
+
+      <button class="btn-save">Guardar producto</button>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+
+    <div class="table-container">
+      <h2>Listado de platos</h2>
+
+      <!-- FILTRO POR NOMBRE -->
+      <div class="filter-container">
+        <label for="filter-name">Filtrar por título:</label>
+        <input
+          type="text"
+          id="filter-name"
+          placeholder="Escribe el nombre del plato..."
+        />
+      </div>
+
+      <table class="tabla-platos">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Tipo</th>
+            <th>Precio</th>
+            <th>Alergenos</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>Nigiri de salmón</td>
+            <td>Nigiri</td>
+            <td>3.50€</td>
+            <td>Soja, Pescado</td>
+            <td>Delicioso bocado de arroz con salmón fresco.</td>
+            <td class="acciones">
+              <button class="btn-edit">Editar</button>
+              <button class="btn-delete">Eliminar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Karage de pollo</td>
+            <td>Karage</td>
+            <td>4.00€</td>
+            <td>Gluten, Huevo</td>
+            <td>Pollo frito crujiente con especias.</td>
+            <td class="acciones">
+              <button class="btn-edit">Editar</button>
+              <button class="btn-delete">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

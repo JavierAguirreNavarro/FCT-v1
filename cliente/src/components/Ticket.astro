@@ -1,0 +1,26 @@
+---
+const { name, amount } = Astro.props;
+---
+
+<div class="ticket">
+    <h2>Ticket de la mesa <span class="id">2</span></h2>
+    <div class="ticket-items">
+        <table>
+            <tr>
+                <th>Plato</th>
+                <th>Cantidad</th>
+            </tr>
+            <tr>
+                <td>Ejemplo 1</td>
+                <td>1</td>
+            </tr>
+        </table>
+    </div>
+    <div class="ticket-status">
+        <select class="estado-selector">
+            <option value="wait" data-color="#e31f26">En espera</option>
+            <option value="prep" data-color="#f8ed43">En preparación</option>
+            <option value="end" data-color="#87c540">Terminado</option>
+        </select>
+    </div>
+</div>

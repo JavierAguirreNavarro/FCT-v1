@@ -1,0 +1,15 @@
+---
+const { name, amount, img } = Astro.props;
+---
+
+<div class="plate-card">
+  <div class="plate-img" style={`background-image: url(${img})`}></div>
+  <div class="plate-details">
+    <h2 class="plate-name">{name}</h2>
+    <p class="plate-amount">Cantidad : {amount}</p>
+    <div class="plate-buttons">
+      <a class="order" href="#"><i class="fa-solid fa-plus"></i> Pedir</a>
+      <a class="info" href="#"><i class="fa-solid fa-circle-info"></i> Info</a>
+    </div>
+  </div>
+</div>
